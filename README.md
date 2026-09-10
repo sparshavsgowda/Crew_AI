@@ -73,6 +73,45 @@ Open [http://localhost:8501](http://localhost:8501) in your browser.
 - `Create my account`
 - `Show my service requests`
 
+## MVC architecture
+
+The application follows a Model-View-Controller structure with service and tool layers for orchestration and data access.
+
+### Model
+
+The `models/` package manages the SQLite database, schema, and seeded demo data. The database model is defined in `models/database.py`.
+
+### View
+
+The `views/` package contains the Streamlit interface. `views/streamlit_view.py` displays the chat, collects user prompts, and renders responses.
+
+### Controller
+
+The `controllers/` package handles user requests and routes them to the appropriate local banking tool or CrewAI service. `controllers/banking_controller.py` also provides direct handling for common balance, transaction, spending, and account-opening requests.
+
+### Service and tool layers
+
+- `services/crew_service.py` builds the CrewAI agents and coordinates general banking questions.
+- `tools/mcp_tools.py` provides SQLite-backed tools for accounts, transactions, and service requests.
+
+### Request flow
+
+```text
+User prompt
+	|
+	v
+Streamlit View
+	|
+	v
+Banking Controller
+	|----------------------|
+	v                      v
+Local Banking Tools     CrewAI Service
+	|                      |
+	v                      v
+SQLite Model          Agent Specialists
+```
+
 ## Project structure
 
 ```text
