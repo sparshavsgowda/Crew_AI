@@ -11,10 +11,11 @@ DB_PATH = Path(__file__).resolve().parent.parent / "bank_data.db"
 def create_database(db_path: str | Path = DB_PATH) -> Path:
     """Create and seed the local demo database."""
     db_path = Path(db_path)
-    connection = sqlite3.connect(db_path)
+    connection = sqlite3.connect(db_path, timeout=30)
     try:
         connection.executescript(
             """
+            BEGIN EXCLUSIVE;
             DROP TABLE IF EXISTS accounts;
             DROP TABLE IF EXISTS transactions;
             DROP TABLE IF EXISTS service_requests;

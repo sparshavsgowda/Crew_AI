@@ -6,12 +6,10 @@ import os
 import time
 from typing import Any
 
-from crewai import Agent, Crew, Process, Task
+from crewai import Agent, Crew, LLM, Process, Task
 from dotenv import load_dotenv
-from langchain_groq import ChatGroq
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
-from models.database import create_database
 from tools.mcp_tools import accounts_tool, services_tool, transactions_tool
 
 MODEL_NAME = "openai/gpt-oss-120b"
@@ -30,17 +28,17 @@ def _is_rate_limit_error(error: BaseException) -> bool:
     stop=stop_after_attempt(4),
     reraise=True,
 )
-def create_llm() -> ChatGroq:
+def create_llm() -> LLM:
     """Create the Groq chat model for the free-tier OSS model."""
-    return ChatGroq(
+    return LLM(
+        provider="groq",
         model=MODEL_NAME,
-        groq_api_key=os.getenv("GROQ_API_KEY"),
+        api_key=os.getenv("GROQ_API_KEY"),
         temperature=0.1,
-        max_retries=3,
     )
 
 
-def _build_agents(llm: ChatGroq) -> tuple[Agent, Agent, Agent, Agent]:
+def _build_agents(llm: LLM) -> tuple[Agent, Agent, Agent, Agent]:
     common = {"llm": llm, "max_rpm": MAX_RPM, "verbose": False}
     coordinator = Agent(
         role="Banking Operations Manager",
@@ -71,7 +69,6 @@ def _build_agents(llm: ChatGroq) -> tuple[Agent, Agent, Agent, Agent]:
 
 
 def build_crew() -> Crew:
-    create_database()
     coordinator, accounts, transactions, services = _build_agents(create_llm())
     tasks = [
         Task(description="Handle account-related parts of {user_prompt} using USER-1001 or an explicit account_id.", expected_output="Account facts or a no-match message.", agent=accounts),

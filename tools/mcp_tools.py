@@ -71,6 +71,8 @@ class ServicesMCPTool(BaseTool):
         if request_type and request_type not in supported_request_types:
             return "Unsupported request type. Use account_opening, address_change, cheque_book, or kyc_update."
         if request_type and details:
+            if not DB_PATH.exists():
+                create_database()
             connection = sqlite3.connect(DB_PATH)
             try:
                 connection.execute("INSERT INTO service_requests (user_id, request_type, details, status, created_at) VALUES (?, ?, ?, 'open', date('now'))", (user_id, request_type, details))

@@ -34,6 +34,20 @@ class BankingController:
             lines.append(f"- {transaction['transaction_date']}: {transaction['description']} ({sign}{transaction['amount']:,.2f})")
         return "\n".join(lines)
 
+    @staticmethod
+    def _local_services_answer() -> str:
+        result = services_tool._run(user_id="USER-1001")
+        if not result.startswith("["):
+            return result
+        requests = json.loads(result)
+        lines = ["Your service requests are:"]
+        for request in requests:
+            lines.append(
+                f"- {request['request_type']}: {request['status']} "
+                f"({request['details']}, {request['created_at']})"
+            )
+        return "\n".join(lines)
+
     def answer(self, prompt: str) -> str:
         if not prompt.strip():
             return "Please enter a banking question."
@@ -50,4 +64,6 @@ class BankingController:
             return self._local_account_answer()
         if "transaction" in normalized_prompt or "spending" in normalized_prompt:
             return self._local_transactions_answer()
+        if any(word in normalized_prompt for word in ("service", "request", "address", "cheque", "kyc")):
+            return self._local_services_answer()
         return run_banking_assistant(prompt.strip())
