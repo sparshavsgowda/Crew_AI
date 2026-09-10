@@ -1,0 +1,22 @@
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Local demo data
+bank_data.db
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Streamlit
+.streamlit/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
