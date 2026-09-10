@@ -60,7 +60,7 @@ class BankingController:
                 details="Customer requested a new bank account.",
             )
             return "Your account-opening request was created successfully. Our team will contact you with the next steps."
-        if "balance" in normalized_prompt or "balances" in normalized_prompt:
+        if any(term in normalized_prompt for term in ("account", "accounts", "balance", "balances", "profile")):
             return self._local_account_answer()
         if "transaction" in normalized_prompt or "spending" in normalized_prompt:
             return self._local_transactions_answer()
